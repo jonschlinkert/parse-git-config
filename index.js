@@ -10,29 +10,33 @@
 var fs = require('fs');
 var path = require('path');
 var ini = require('ini');
-var lookup = require('look-up');
 
-module.exports = config;
+/**
+ * Expose `config`
+ */
 
-function config(cwd, cb) {
+module.exports = git;
+
+function git(cwd, cb) {
   if (typeof cwd === 'function') {
     cb = cwd; cwd = null;
   }
 
-  var fp = path.join(cwd || process.cwd(), '.git/config');
-  read(fp, function (err, buffer) {
+  if (typeof cb !== 'function') {
+    throw new TypeError('parse-git-config async expects a callback function.');
+  }
+
+  read(resolve(cwd), function (err, buffer) {
     if (err) {
       cb(err);
       return;
     }
-
-    var data = ini.parse(buffer.toString());
-    return cb(null, data);
+    cb(null, ini.parse(buffer.toString()));
   });
 }
 
-config.sync = function configSync(cwd) {
-  var fp = path.join(cwd || process.cwd(), '.git/config');
+git.sync = function configSync(cwd) {
+  var fp = resolve(cwd);
   if (!fs.existsSync(fp)) {
     throw new Error('.git/config does not exist.');
   }
@@ -41,12 +45,17 @@ config.sync = function configSync(cwd) {
 
 function read(fp, cb) {
   try {
-    fs.readFile(fp, function (err, data) {
-      if (err) return cb(err);
-
-      return cb(null, data);
+    fs.readFile(fp, function (err, config) {
+      if (err) {
+        return cb(err);
+      }
+      cb(null, config);
     });
   } catch (err) {
     cb(err);
   }
+}
+
+function resolve(cwd) {
+  return path.join(cwd || process.cwd(), '.git/config');
 }
