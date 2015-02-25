@@ -8,32 +8,44 @@
 'use strict';
 
 var should = require('should');
-var config = require('./');
+var git = require('./');
+
 
 describe('sync:', function () {
   it('should return an object', function () {
-    config.sync().should.have.properties([]);
+    git.sync().should.have.properties(['core']);
+    git.sync().should.not.have.properties(['foo']);
+    git.sync().should.not.throw;
   });
 
   it('should throw an error when .git/config does not exist:', function () {
     (function () {
-      config.sync('foo');
+      git.sync('foo');
     }).should.throw('.git/config does not exist.');
   });
 });
 
 describe('async:', function () {
-  it('should throw an error when .git/config does not exist:', function (cb) {
-    config(function (err, data) {
-      console.log(arguments)
-    });
+  it('should throw a callback is not passed:', function (cb) {
+    (function () {
+      git();
+    }).should.throw('parse-git-config async expects a callback function.')
     cb();
   });
 
   it('should throw an error when .git/config does not exist:', function (cb) {
-    config('foo', function (err, data) {
-      console.log(arguments)
+    git(function (err, config) {
+      config.should.have.property('core');
+      config.should.not.have.property('foo');
+      cb();
     });
-    cb();
+  });
+
+  it('should throw an error when .git/config does not exist:', function (cb) {
+    git('foo', function (err, config) {
+      err.should.be.an.instanceof(Error);
+      err.message.should.equal('ENOENT, open \'foo/.git/config\'');
+      cb();
+    });
   });
 });
