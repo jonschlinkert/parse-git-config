@@ -38,7 +38,7 @@ function git(cwd, cb) {
 git.sync = function configSync(cwd) {
   var fp = resolve(cwd);
   if (!fs.existsSync(fp)) {
-    throw new Error('.git/config does not exist.');
+    return null;
   }
   return ini.parse(fs.readFileSync(fp, 'utf8'));
 };

@@ -17,12 +17,6 @@ describe('sync:', function () {
     git.sync().should.not.have.properties(['foo']);
     git.sync().should.not.throw;
   });
-
-  it('should throw an error when .git/config does not exist:', function () {
-    (function () {
-      git.sync('foo');
-    }).should.throw('.git/config does not exist.');
-  });
 });
 
 describe('async:', function () {
