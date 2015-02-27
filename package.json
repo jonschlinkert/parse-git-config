@@ -1,7 +1,7 @@
 {
   "name": "parse-git-config",
   "description": "Parse `.git/config` into a JavaScript object. sync or async.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "homepage": "https://github.com/jonschlinkert/parse-git-config",
   "author": {
     "name": "Jon Schlinkert",
