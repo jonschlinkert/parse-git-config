@@ -17,16 +17,18 @@ var ini = require('ini');
 
 module.exports = git;
 
-function git(cwd, cb) {
-  if (typeof cwd === 'function') {
-    cb = cwd; cwd = null;
+function git(options, cb) {
+  if (typeof options === 'function') {
+    cb = options; options = null;
   }
+
+  var fp = resolve(options);
 
   if (typeof cb !== 'function') {
     throw new TypeError('parse-git-config async expects a callback function.');
   }
 
-  read(resolve(cwd), function (err, buffer) {
+  read(fp, function (err, buffer) {
     if (err) {
       cb(err);
       return;
@@ -35,8 +37,8 @@ function git(cwd, cb) {
   });
 }
 
-git.sync = function configSync(cwd) {
-  var fp = resolve(cwd);
+git.sync = function configSync(options) {
+  var fp = resolve(options);
   if (!fs.existsSync(fp)) {
     return null;
   }
@@ -56,6 +58,8 @@ function read(fp, cb) {
   }
 }
 
-function resolve(cwd) {
-  return path.join(cwd || process.cwd(), '.git/config');
+function resolve(options) {
+  options = options || {};
+  var cwd = options.cwd ? path.resolve(options.cwd) : process.cwd();
+  return path.join(cwd, options.path || '.git/config');
 }
