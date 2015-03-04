@@ -36,9 +36,9 @@ describe('async:', function () {
   });
 
   it('should throw an error when .git/config does not exist:', function (cb) {
-    git('foo', function (err, config) {
+    git({path: 'foo'}, function (err, config) {
       err.should.be.an.instanceof(Error);
-      err.message.should.equal('ENOENT, open \'foo/.git/config\'');
+      err.message.should.match(/ENOENT.*parse-git-config/);
       cb();
     });
   });
