@@ -43,3 +43,22 @@ describe('async:', function () {
     });
   });
 });
+
+describe('resolve:', function () {
+  it('should resolve the git config in the cwd by default', function () {
+    var sep = require('path').sep;
+    git.resolve().should.equal(process.cwd() + sep + '.git' + sep + 'config');
+  })
+  it('should allow override path', function () {
+    var path = require('path').resolve(process.env.HOME, '.gitconfig')
+    git.resolve({path: path}).should.equal(path);
+  })
+  it('should resolve relative path to cwd', function () {
+    git.resolve({path: '.config'})
+    .should.equal(require('path').resolve(process.cwd(), '.config'));
+  })
+  it('should allow override of cwd', function () {
+    git.resolve({path: '.config', cwd: '/opt/config'})
+    .should.equal(require('path').resolve('/opt/config','.config'))
+  })
+})

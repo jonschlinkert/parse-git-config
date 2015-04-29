@@ -61,5 +61,6 @@ function read(fp, cb) {
 function resolve(options) {
   options = options || {};
   var cwd = options.cwd ? path.resolve(options.cwd) : process.cwd();
-  return path.join(cwd, options.path || '.git/config');
+  return path.resolve(cwd, options.path || '.git/config');
 }
+module.exports.resolve = resolve;
