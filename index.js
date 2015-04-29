@@ -63,4 +63,9 @@ function resolve(options) {
   var cwd = options.cwd ? path.resolve(options.cwd) : process.cwd();
   return path.resolve(cwd, options.path || '.git/config');
 }
+
+/**
+ * Expose `resolve`
+ */
+
 module.exports.resolve = resolve;

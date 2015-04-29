@@ -7,7 +7,8 @@
 
 'use strict';
 
-var should = require('should');
+/* deps:mocha */
+require('should');
 var git = require('./');
 
 
