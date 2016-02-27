@@ -3,14 +3,8 @@
   "description": "Parse `.git/config` into a JavaScript object. sync or async.",
   "version": "0.3.1",
   "homepage": "https://github.com/jonschlinkert/parse-git-config",
-  "author": {
-    "name": "Jon Schlinkert",
-    "url": "https://github.com/jonschlinkert"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/jonschlinkert/parse-git-config.git"
-  },
+  "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
+  "repository": "jonschlinkert/parse-git-config",
   "bugs": {
     "url": "https://github.com/jonschlinkert/parse-git-config/issues"
   },
@@ -36,5 +30,15 @@
     "config",
     "git",
     "parse"
-  ]
+  ],
+  "verb": {
+    "related": {
+      "list": [
+        "parse-github-url",
+        "parse-gitignore",
+        "parse-author",
+        "parse-authors"
+      ]
+    }
+  }
 }

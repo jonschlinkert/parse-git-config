@@ -11,15 +11,10 @@ var fs = require('fs');
 var path = require('path');
 var ini = require('ini');
 
-/**
- * Expose `config`
- */
-
-module.exports = git;
-
-function git(options, cb) {
+function parseGitConfig(options, cb) {
   if (typeof options === 'function') {
-    cb = options; options = null;
+    cb = options;
+    options = null;
   }
 
   var fp = resolve(options);
@@ -28,7 +23,7 @@ function git(options, cb) {
     throw new TypeError('parse-git-config async expects a callback function.');
   }
 
-  read(fp, function (err, buffer) {
+  read(fp, function(err, buffer) {
     if (err) {
       cb(err);
       return;
@@ -37,7 +32,7 @@ function git(options, cb) {
   });
 }
 
-git.sync = function configSync(options) {
+parseGitConfig.sync = function parseGitConfigSync(options) {
   var fp = resolve(options);
   if (!fs.existsSync(fp)) {
     return null;
@@ -47,7 +42,7 @@ git.sync = function configSync(options) {
 
 function read(fp, cb) {
   try {
-    fs.readFile(fp, function (err, config) {
+    fs.readFile(fp, function(err, config) {
       if (err) {
         return cb(err);
       }
@@ -68,4 +63,10 @@ function resolve(options) {
  * Expose `resolve`
  */
 
-module.exports.resolve = resolve;
+parseGitConfig.resolve = resolve;
+
+/**
+ * Expose `parseGitConfig`
+ */
+
+module.exports = parseGitConfig;
