@@ -181,6 +181,8 @@ Results in:
 
 ## Related projects
 
+* [git-user-name](https://www.npmjs.com/package/git-user-name): Get a user's name from git config at the project or global scope, depending on… [more](https://www.npmjs.com/package/git-user-name) | [homepage](https://github.com/jonschlinkert/git-user-name)
+* [git-username](https://www.npmjs.com/package/git-username): Get the username from a git remote origin URL. | [homepage](https://github.com/jonschlinkert/git-username)
 * [parse-author](https://www.npmjs.com/package/parse-author): Parse a string into an object with `name`, `email` and `url` properties following npm conventions.… [more](https://www.npmjs.com/package/parse-author) | [homepage](https://github.com/jonschlinkert/parse-author)
 * [parse-authors](https://www.npmjs.com/package/parse-authors): Parse a string into an array of objects with `name`, `email` and `url` properties following… [more](https://www.npmjs.com/package/parse-authors) | [homepage](https://github.com/jonschlinkert/parse-authors)
 * [parse-github-url](https://www.npmjs.com/package/parse-github-url): Parse a github URL into an object. | [homepage](https://github.com/jonschlinkert/parse-github-url)
