@@ -33,6 +33,14 @@
     "parse"
   ],
   "verb": {
+    "related": {
+      "list": [
+        "parse-github-url",
+        "parse-gitignore",
+        "parse-author",
+        "parse-authors"
+      ]
+    },
     "run": true,
     "toc": false,
     "layout": "default",
@@ -42,14 +50,6 @@
     "plugins": [
       "gulp-format-md"
     ],
-    "related": {
-      "list": [
-        "parse-github-url",
-        "parse-gitignore",
-        "parse-author",
-        "parse-authors"
-      ]
-    },
     "reflinks": [
       "verb"
     ],
