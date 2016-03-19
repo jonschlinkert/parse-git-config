@@ -11,62 +11,123 @@ var fs = require('fs');
 var path = require('path');
 var ini = require('ini');
 
-function parseGitConfig(options, cb) {
+/**
+ * Asynchronously parse a `.git/config` file. If only the callback is passed,
+ * the `.git/config` file relative to `process.cwd()` is used.
+ *
+ * ```js
+ * parse(function(err, config) {
+ *   if (err) throw err;
+ *   // do stuff with config
+ * });
+ * ```
+ * @param {Object|String|Function} `options` Options with `cwd` or `path`, the cwd to use, or the callback function.
+ * @param {Function} `cb` callback function if the first argument is options or cwd.
+ * @return {Object}
+ * @api public
+ */
+
+function parse(options, cb) {
   if (typeof options === 'function') {
     cb = options;
-    options = null;
+    options = {};
   }
-
-  var fp = resolve(options);
 
   if (typeof cb !== 'function') {
     throw new TypeError('parse-git-config async expects a callback function.');
   }
 
-  read(fp, function(err, buffer) {
-    if (err) {
-      cb(err);
-      return;
-    }
-    cb(null, ini.parse(buffer.toString()));
+  options = options || {};
+  var filepath = parse.resolve(options);
+
+  fs.stat(filepath, function(err, stat) {
+    if (err) return cb(err);
+
+    fs.readFile(filepath, 'utf8', function(err, str) {
+      if (err) return cb(err);
+      cb(null, ini.parse(str));
+    });
   });
 }
 
-parseGitConfig.sync = function parseGitConfigSync(options) {
-  var fp = resolve(options);
-  if (!fs.existsSync(fp)) {
-    return null;
+/**
+ * Synchronously parse a `.git/config` file. If no arguments are passed,
+ * the `.git/config` file relative to `process.cwd()` is used.
+ *
+ * ```js
+ * var config = parse.sync();
+ * ```
+ *
+ * @name .sync
+ * @param {Object|String} `options` Options with `cwd` or `path`, or the cwd to use.
+ * @return {Object}
+ * @api public
+ */
+
+parse.sync = function parseSync(options) {
+  options = options || {};
+  var filepath = parse.resolve(options);
+  if (exists(filepath)) {
+    var str = fs.readFileSync(filepath, 'utf8');
+    return ini.parse(str);
   }
-  return ini.parse(fs.readFileSync(fp, 'utf8'));
+  return {};
 };
 
-function read(fp, cb) {
-  try {
-    fs.readFile(fp, function(err, config) {
-      if (err) {
-        return cb(err);
-      }
-      cb(null, config);
-    });
-  } catch (err) {
-    cb(err);
-  }
-}
+/**
+ * Resolve the git config path
+ */
 
-function resolve(options) {
+parse.resolve = function resolve(options) {
   options = options || {};
-  var cwd = options.cwd ? path.resolve(options.cwd) : process.cwd();
+  var cwd;
+  if (typeof options === 'string') {
+    cwd = path.resolve(options);
+    options = {};
+  } else if (options.cwd) {
+    cwd = options.cwd;
+  } else {
+    cwd = process.cwd();
+  }
   return path.resolve(cwd, options.path || '.git/config');
+};
+
+/**
+ * Returns an object with only the properties that had ini-style keys
+ * converted to objects (example below).
+ *
+ * ```js
+ * var config = parse.sync();
+ * var obj = parse.keys(config);
+ * ```
+ * @name .keys
+ * @param {Object} `config` The parsed git config object.
+ * @return {Object}
+ * @api public
+ */
+
+parse.keys = function parseKeys(config) {
+  var res = {};
+  for (var key in config) {
+    var m = /(\S+) "(.*)"/.exec(key);
+    if (!m) continue;
+    var prop = m[1];
+    res[prop] = res[prop] || {};
+    res[prop][m[2]] = config[key];
+  }
+  return res;
+};
+
+function exists(fp) {
+  try {
+    fs.statSync(fp);
+    return true;
+  } catch (err) {}
+  return false;
 }
 
 /**
- * Expose `resolve`
+ * Expose `parse`
  */
 
-parseGitConfig.resolve = resolve;
-
-/**
- * Expose `parseGitConfig`
- */
-
-module.exports = parseGitConfig;
+module.exports = parse;
