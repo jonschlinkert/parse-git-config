@@ -9,7 +9,10 @@
 
 var fs = require('fs');
 var path = require('path');
+var extend = require('extend-shallow');
+var configPath = require('git-config-path');
 var ini = require('ini');
+var gitCache = {};
 
 /**
  * Asynchronously parse a `.git/config` file. If only the callback is passed,
@@ -40,12 +43,19 @@ function parse(options, cb) {
   options = options || {};
   var filepath = parse.resolve(options);
 
+  if (gitCache[filepath]) {
+    cb(null, gitCache[filepath]);
+    return;
+  }
+
   fs.stat(filepath, function(err, stat) {
     if (err) return cb(err);
 
     fs.readFile(filepath, 'utf8', function(err, str) {
       if (err) return cb(err);
-      cb(null, ini.parse(str));
+      var parsed = ini.parse(str);
+      gitCache[filepath] = parsed;
+      cb(null, parsed);
     });
   });
 }
@@ -67,9 +77,13 @@ function parse(options, cb) {
 parse.sync = function parseSync(options) {
   options = options || {};
   var filepath = parse.resolve(options);
+
+  if (gitCache[filepath]) {
+    return gitCache[filepath];
+  }
   if (exists(filepath)) {
     var str = fs.readFileSync(filepath, 'utf8');
-    return ini.parse(str);
+    return (gitCache[filepath] = ini.parse(str));
   }
   return {};
 };
@@ -79,17 +93,14 @@ parse.sync = function parseSync(options) {
  */
 
 parse.resolve = function resolve(options) {
-  options = options || {};
-  var cwd;
   if (typeof options === 'string') {
-    cwd = path.resolve(options);
-    options = {};
-  } else if (options.cwd) {
-    cwd = options.cwd;
-  } else {
-    cwd = process.cwd();
+    options = { path: options };
   }
-  return path.resolve(cwd, options.path || '.git/config');
+  var opts = extend({path: configPath()}, options);
+  if (opts.cwd) {
+    opts.path = path.resolve(opts.cwd, opts.path);
+  }
+  return path.resolve(opts.path);
 };
 
 /**
