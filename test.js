@@ -8,37 +8,39 @@
 'use strict';
 
 require('mocha');
-require('should');
+var assert = require('assert');
+var path = require('path');
 var parse = require('./');
 
 describe('sync:', function() {
   it('should return an object', function() {
-    parse.sync().should.have.properties(['core']);
-    parse.sync().should.not.have.properties(['foo']);
-    parse.sync().should.not.throw;
+    assert(parse.sync().hasOwnProperty('core'));
   });
 });
 
 describe('async:', function() {
   it('should throw a callback is not passed:', function(cb) {
-    (function() {
+    try {
       parse();
-    }).should.throw('parse-git-config async expects a callback function.');
-    cb();
+      cb(new Error('expected an error'));
+    } catch (err) {
+      assert.equal(err.message, 'parse-git-config async expects a callback function.');
+      cb();
+    }
   });
 
-  it('should throw an error when .git/config does not exist:', function(cb) {
+  it('should parse .git/config', function(cb) {
     parse(function(err, config) {
-      config.should.have.property('core');
-      config.should.not.have.property('foo');
+      assert(!err);
+      assert(config.hasOwnProperty('core'));
       cb();
     });
   });
 
   it('should throw an error when .git/config does not exist:', function(cb) {
     parse({path: 'foo'}, function(err, config) {
-      err.should.be.an.instanceof(Error);
-      err.message.should.match(/ENOENT.*parse-git-config/);
+      assert(err instanceof Error);
+      assert(/ENOENT.*parse-git-config/.test(err.message));
       cb();
     });
   });
@@ -46,20 +48,21 @@ describe('async:', function() {
 
 describe('resolve:', function() {
   it('should resolve the git config in the cwd by default', function() {
-    var sep = require('path').sep;
-    parse.resolve().should.equal(process.cwd() + sep + '.git' + sep + 'config');
+    assert.equal(parse.resolve(), path.resolve(process.cwd(), '.git/config'));
   });
+
   it('should allow override path', function() {
-    var path = require('path').resolve(process.env.HOME, '.gitconfig');
-    parse.resolve({path: path}).should.equal(path);
+    var fp = path.resolve(process.env.HOME, '.gitconfig');
+    assert.equal(parse.resolve({path: fp}), fp);
   });
+
   it('should resolve relative path to cwd', function() {
-    parse.resolve({path: '.config'})
-    .should.equal(require('path').resolve(process.cwd(), '.config'));
+    assert.equal(parse.resolve({path: '.config'}), path.resolve(process.cwd(), '.config'));
   });
+
   it('should allow override of cwd', function() {
-    parse.resolve({path: '.config', cwd: '/opt/config'})
-    .should.equal(require('path').resolve('/opt/config','.config'));
+    var actual = parse.resolve({path: '.config', cwd: '/opt/config'});
+    assert.equal(actual, path.resolve('/opt/config/.config'));
   });
 });
 
@@ -70,7 +73,7 @@ describe('.keys:', function() {
       'foo "baz"': { doStuff: true }
     };
 
-    parse.keys(config).should.eql({
+    assert.deepEqual(parse.keys(config), {
       foo: {
         bar: { doStuff: true },
         baz: { doStuff: true }
