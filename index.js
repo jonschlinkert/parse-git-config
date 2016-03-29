@@ -42,7 +42,6 @@ function parse(options, cb) {
 
   options = options || {};
   var filepath = parse.resolve(options);
-
   if (gitCache[filepath]) {
     cb(null, gitCache[filepath]);
     return;
@@ -77,7 +76,6 @@ function parse(options, cb) {
 parse.sync = function parseSync(options) {
   options = options || {};
   var filepath = parse.resolve(options);
-
   if (gitCache[filepath]) {
     return gitCache[filepath];
   }
@@ -93,10 +91,16 @@ parse.sync = function parseSync(options) {
  */
 
 parse.resolve = function resolve(options) {
+  var isGlobal = false;
+  if (options === 'global') {
+    isGlobal = true;
+    options = {};
+  }
+
   if (typeof options === 'string') {
     options = { path: options };
   }
-  var opts = extend({path: configPath()}, options);
+  var opts = extend({path: configPath(isGlobal ? 'global' : null)}, options);
   if (opts.cwd) {
     opts.path = path.resolve(opts.cwd, opts.path);
   }
