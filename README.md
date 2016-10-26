@@ -1,4 +1,4 @@
-# parse-git-config [![NPM version](https://img.shields.io/npm/v/parse-git-config.svg?style=flat)](https://www.npmjs.com/package/parse-git-config) [![NPM downloads](https://img.shields.io/npm/dm/parse-git-config.svg?style=flat)](https://npmjs.org/package/parse-git-config) [![Build Status](https://img.shields.io/travis/jonschlinkert/parse-git-config.svg?style=flat)](https://travis-ci.org/jonschlinkert/parse-git-config)
+# parse-git-config [![NPM version](https://img.shields.io/npm/v/parse-git-config.svg?style=flat)](https://www.npmjs.com/package/parse-git-config) [![NPM monthly downloads](https://img.shields.io/npm/dm/parse-git-config.svg?style=flat)](https://npmjs.org/package/parse-git-config)  [![NPM total downloads](https://img.shields.io/npm/dt/parse-git-config.svg?style=flat)](https://npmjs.org/package/parse-git-config) [![Linux Build Status](https://img.shields.io/travis/jonschlinkert/parse-git-config.svg?style=flat&label=Travis)](https://travis-ci.org/jonschlinkert/parse-git-config)
 
 > Parse `.git/config` into a JavaScript object. sync or async.
 
@@ -7,7 +7,7 @@
 Install with [npm](https://www.npmjs.com/):
 
 ```sh
-$ npm install parse-git-config --save
+$ npm install --save parse-git-config
 ```
 
 ## Usage
@@ -55,15 +55,9 @@ Config object will be something like:
 
 ## API
 
-### [parse](index.js#L33)
+### [parse](index.js#L34)
 
 Asynchronously parse a `.git/config` file. If only the callback is passed, the `.git/config` file relative to `process.cwd()` is used.
-
-**Params**
-
-* `options` **{Object|String|Function}**: Options with `cwd` or `path`, the cwd to use, or the callback function.
-* `cb` **{Function}**: callback function if the first argument is options or cwd.
-* `returns` **{Object}**
 
 **Example**
 
@@ -74,14 +68,15 @@ parse(function(err, config) {
 });
 ```
 
-### [.sync](index.js#L76)
-
-Synchronously parse a `.git/config` file. If no arguments are passed, the `.git/config` file relative to `process.cwd()` is used.
-
 **Params**
 
-* `options` **{Object|String}**: Options with `cwd` or `path`, or the cwd to use.
+* `options` **{Object|String|Function}**: Options with `cwd` or `path`, the cwd to use, or the callback function.
+* `cb` **{Function}**: callback function if the first argument is options or cwd.
 * `returns` **{Object}**
+
+### [.sync](index.js#L77)
+
+Synchronously parse a `.git/config` file. If no arguments are passed, the `.git/config` file relative to `process.cwd()` is used.
 
 **Example**
 
@@ -89,14 +84,14 @@ Synchronously parse a `.git/config` file. If no arguments are passed, the `.git/
 var config = parse.sync();
 ```
 
-### [.keys](index.js#L124)
-
-Returns an object with only the properties that had ini-style keys converted to objects (example below).
-
 **Params**
 
-* `config` **{Object}**: The parsed git config object.
+* `options` **{Object|String}**: Options with `cwd` or `path`, or the cwd to use.
 * `returns` **{Object}**
+
+### [.keys](index.js#L133)
+
+Returns an object with only the properties that had ini-style keys converted to objects (example below).
 
 **Example**
 
@@ -104,6 +99,11 @@ Returns an object with only the properties that had ini-style keys converted to 
 var config = parse.sync();
 var obj = parse.keys(config);
 ```
+
+**Params**
+
+* `config` **{Object}**: The parsed git config object.
+* `returns` **{Object}**
 
 ### .keys examples
 
@@ -179,36 +179,40 @@ Results in:
 }
 ```
 
-## Related projects
+## About
 
-You might also be interested in these projects:
+### Related projects
 
-* [git-user-name](https://www.npmjs.com/package/git-user-name): Get a user's name from git config at the project or global scope, depending on… [more](https://www.npmjs.com/package/git-user-name) | [homepage](https://github.com/jonschlinkert/git-user-name)
-* [git-username](https://www.npmjs.com/package/git-username): Get the username from a git remote origin URL. | [homepage](https://github.com/jonschlinkert/git-username)
-* [parse-author](https://www.npmjs.com/package/parse-author): Parse a string into an object with `name`, `email` and `url` properties following npm conventions.… [more](https://www.npmjs.com/package/parse-author) | [homepage](https://github.com/jonschlinkert/parse-author)
-* [parse-authors](https://www.npmjs.com/package/parse-authors): Parse a string into an array of objects with `name`, `email` and `url` properties following… [more](https://www.npmjs.com/package/parse-authors) | [homepage](https://github.com/jonschlinkert/parse-authors)
-* [parse-github-url](https://www.npmjs.com/package/parse-github-url): Parse a github URL into an object. | [homepage](https://github.com/jonschlinkert/parse-github-url)
-* [parse-gitignore](https://www.npmjs.com/package/parse-gitignore): Parse a gitignore file into an array of patterns. Comments and empty lines are stripped. | [homepage](https://github.com/jonschlinkert/parse-gitignore)
+* [git-user-name](https://www.npmjs.com/package/git-user-name): Get a user's name from git config at the project or global scope, depending on… [more](https://github.com/jonschlinkert/git-user-name) | [homepage](https://github.com/jonschlinkert/git-user-name "Get a user's name from git config at the project or global scope, depending on what git uses in the current context.")
+* [git-username](https://www.npmjs.com/package/git-username): Get the username from a git remote origin URL. | [homepage](https://github.com/jonschlinkert/git-username "Get the username from a git remote origin URL.")
+* [parse-author](https://www.npmjs.com/package/parse-author): Parse a string into an object with `name`, `email` and `url` properties following npm conventions… [more](https://github.com/jonschlinkert/parse-author) | [homepage](https://github.com/jonschlinkert/parse-author "Parse a string into an object with `name`, `email` and `url` properties following npm conventions. Useful for the `authors` property in package.json or for parsing an AUTHORS file into an array of authors objects.")
+* [parse-authors](https://www.npmjs.com/package/parse-authors): Parse a string into an array of objects with `name`, `email` and `url` properties following… [more](https://github.com/jonschlinkert/parse-authors) | [homepage](https://github.com/jonschlinkert/parse-authors "Parse a string into an array of objects with `name`, `email` and `url` properties following npm conventions. Useful for the `authors` property in package.json or for parsing an AUTHORS file into an array of authors objects.")
+* [parse-github-url](https://www.npmjs.com/package/parse-github-url): Parse a github URL into an object. | [homepage](https://github.com/jonschlinkert/parse-github-url "Parse a github URL into an object.")
+* [parse-gitignore](https://www.npmjs.com/package/parse-gitignore): Parse a gitignore file into an array of patterns. Comments and empty lines are stripped. | [homepage](https://github.com/jonschlinkert/parse-gitignore "Parse a gitignore file into an array of patterns. Comments and empty lines are stripped.")
 
-## Contributing
+### Contributing
 
-Pull requests and stars are always welcome. For bugs and feature requests, [please create an issue](https://github.com/jonschlinkert/parse-git-config/issues/new).
+Pull requests and stars are always welcome. For bugs and feature requests, [please create an issue](../../issues/new).
 
-## Building docs
+### Contributors
 
-Generate readme and API documentation with [verb](https://github.com/verbose/verb):
+| **Commits** | **Contributor**<br/> | 
+| --- | --- |
+| 33 | [jonschlinkert](https://github.com/jonschlinkert) |
+| 1 | [sam3d](https://github.com/sam3d) |
+| 1 | [jsdnxx](https://github.com/jsdnxx) |
+
+### Building docs
+
+_(This document was generated by [verb-generate-readme](https://github.com/verbose/verb-generate-readme) (a [verb](https://github.com/verbose/verb) generator), please don't edit the readme directly. Any changes to the readme must be made in [.verb.md](.verb.md).)_
+
+To generate the readme and API documentation with [verb](https://github.com/verbose/verb):
 
 ```sh
-$ npm install verb && npm run docs
+$ npm install -g verb verb-generate-readme && verb
 ```
 
-Or, if [verb](https://github.com/verbose/verb) is installed globally:
-
-```sh
-$ verb
-```
-
-## Running tests
+### Running tests
 
 Install dev dependencies:
 
@@ -216,18 +220,18 @@ Install dev dependencies:
 $ npm install -d && npm test
 ```
 
-## Author
+### Author
 
 **Jon Schlinkert**
 
 * [github/jonschlinkert](https://github.com/jonschlinkert)
 * [twitter/jonschlinkert](http://twitter.com/jonschlinkert)
 
-## License
+### License
 
 Copyright © 2016, [Jon Schlinkert](https://github.com/jonschlinkert).
 Released under the [MIT license](https://github.com/jonschlinkert/parse-git-config/blob/master/LICENSE).
 
 ***
 
-_This file was generated by [verb](https://github.com/verbose/verb), v, on March 29, 2016._
+_This file was generated by [verb-generate-readme](https://github.com/verbose/verb-generate-readme), v0.2.0, on October 26, 2016._
