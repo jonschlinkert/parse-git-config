@@ -4,6 +4,11 @@
   "version": "0.4.2",
   "homepage": "https://github.com/jonschlinkert/parse-git-config",
   "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
+  "contributors": [
+    "Jason Denizac <jason@denizac.org> (https://jden.us)",
+    "Jon Schlinkert <jon.schlinkert@sellside.com> (http://twitter.com/jonschlinkert)",
+    "Sam Holmes <sam@samholmes.net> (https://samholmes.net)"
+  ],
   "repository": "jonschlinkert/parse-git-config",
   "bugs": {
     "url": "https://github.com/jonschlinkert/parse-git-config/issues"
@@ -21,13 +26,13 @@
   },
   "dependencies": {
     "extend-shallow": "^2.0.1",
-    "git-config-path": "^0.2.0",
+    "git-config-path": "^1.0.0",
     "ini": "^1.3.4"
   },
   "devDependencies": {
-    "gulp-format-md": "^0.1.7",
-    "mocha": "^2.4.5",
-    "os-homedir": "^1.0.1"
+    "gulp-format-md": "^0.1.11",
+    "homedir-polyfill": "^1.0.0",
+    "mocha": "^3.1.2"
   },
   "keywords": [
     "config",
@@ -46,12 +51,12 @@
     ],
     "related": {
       "list": [
-        "parse-github-url",
-        "parse-gitignore",
+        "git-user-name",
+        "git-username",
         "parse-author",
         "parse-authors",
-        "git-user-name",
-        "git-username"
+        "parse-github-url",
+        "parse-gitignore"
       ]
     },
     "reflinks": [

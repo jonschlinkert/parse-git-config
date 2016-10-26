@@ -10,7 +10,7 @@
 require('mocha');
 var assert = require('assert');
 var path = require('path');
-var home = require('os-homedir');
+var homedir = require('homedir-polyfill');
 var parse = require('./');
 
 describe('sync:', function() {
@@ -53,7 +53,7 @@ describe('resolve:', function() {
   });
 
   it('should allow override path', function() {
-    var fp = path.resolve(home(), '.gitconfig');
+    var fp = path.resolve(homedir(), '.gitconfig');
     assert.equal(parse.resolve({path: fp}), fp);
   });
 
@@ -62,7 +62,7 @@ describe('resolve:', function() {
   });
 
   it('should resolve relative path to the global git config when `global` is passed', function() {
-    assert.equal(parse.resolve('global'), path.resolve(home(), '.gitconfig'));
+    assert.equal(parse.resolve('global'), path.resolve(homedir(), '.gitconfig'));
   });
 
   it('should allow override of cwd', function() {
