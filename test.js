@@ -8,6 +8,8 @@
 'use strict';
 
 require('mocha');
+var isTravis = process.env.TRAVIS || process.env.CLI;
+var os = require('os');
 var assert = require('assert');
 var path = require('path');
 var homedir = require('homedir-polyfill');
@@ -62,6 +64,7 @@ describe('resolve:', function() {
   });
 
   it('should resolve relative path to the global git config when `global` is passed', function() {
+    if (isTravis && os.platform() === 'darwin') return this.skip();
     assert.equal(parse.resolve('global'), path.resolve(homedir(), '.gitconfig'));
   });
 
