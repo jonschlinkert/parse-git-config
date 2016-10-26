@@ -9,6 +9,7 @@
 
 var fs = require('fs');
 var path = require('path');
+var exists = require('fs-exists-sync');
 var extend = require('extend-shallow');
 var configPath = require('git-config-path');
 var ini = require('ini');
@@ -132,14 +133,6 @@ parse.keys = function parseKeys(config) {
   }
   return res;
 };
-
-function exists(fp) {
-  try {
-    fs.statSync(fp);
-    return true;
-  } catch (err) {}
-  return false;
-}
 
 /**
  * Expose `parse`
