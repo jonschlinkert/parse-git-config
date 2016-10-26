@@ -198,7 +198,7 @@ Pull requests and stars are always welcome. For bugs and feature requests, [plea
 
 | **Commits** | **Contributor**<br/> | 
 | --- | --- |
-| 33 | [jonschlinkert](https://github.com/jonschlinkert) |
+| 41 | [jonschlinkert](https://github.com/jonschlinkert) |
 | 1 | [sam3d](https://github.com/sam3d) |
 | 1 | [jsdnxx](https://github.com/jsdnxx) |
 
