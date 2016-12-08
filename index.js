@@ -106,14 +106,8 @@ parse.resolve = function resolve(options) {
   // `git-config-path` determine the path
   var type = isGlobal ? 'global' : null;
   var opts = extend({path: configPath(type)}, options);
-  if (opts.path && exists(opts.path)) {
-    return opts.path;
-  }
-
-  if (opts.cwd && opts.path) {
-    return path.resolve(opts.cwd, opts.path);
-  }
-  return opts.path && path.resolve(opts.path);
+  var cwd = opts.cwd || process.cwd();
+  return path.resolve(cwd, opts.path);
 };
 
 /**
