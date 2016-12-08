@@ -92,22 +92,12 @@ parse.sync = function parseSync(options) {
  */
 
 parse.resolve = function resolve(options) {
-  var isGlobal = false;
-  if (options === 'global') {
-    isGlobal = true;
-    options = {};
-  }
-
   if (typeof options === 'string') {
-    options = { path: options };
+    options = { type: options };
   }
-
-  // if "global" isn't explicitly defined, let
-  // `git-config-path` determine the path
-  var type = isGlobal ? 'global' : null;
-  var opts = extend({path: configPath(type)}, options);
-  var cwd = opts.cwd || process.cwd();
-  return path.resolve(cwd, opts.path);
+  var opts = extend({cwd: process.cwd()}, options);
+  var fp = opts.path || configPath(opts.type);
+  return path.resolve(opts.cwd, fp);
 };
 
 /**
