@@ -13,7 +13,6 @@ var exists = require('fs-exists-sync');
 var extend = require('extend-shallow');
 var configPath = require('git-config-path');
 var ini = require('ini');
-var gitCache = {};
 
 /**
  * Asynchronously parse a `.git/config` file. If only the callback is passed,
@@ -43,10 +42,6 @@ function parse(options, cb) {
 
   options = options || {};
   var filepath = parse.resolve(options);
-  if (gitCache[filepath]) {
-    cb(null, gitCache[filepath]);
-    return;
-  }
 
   fs.stat(filepath, function(err, stat) {
     if (err) return cb(err);
@@ -54,7 +49,6 @@ function parse(options, cb) {
     fs.readFile(filepath, 'utf8', function(err, str) {
       if (err) return cb(err);
       var parsed = ini.parse(str);
-      gitCache[filepath] = parsed;
       cb(null, parsed);
     });
   });
@@ -77,12 +71,10 @@ function parse(options, cb) {
 parse.sync = function parseSync(options) {
   options = options || {};
   var filepath = parse.resolve(options);
-  if (gitCache[filepath]) {
-    return gitCache[filepath];
-  }
-  if (exists(filepath)) {
+
+  if (filepath && exists(filepath)) {
     var str = fs.readFileSync(filepath, 'utf8');
-    return (gitCache[filepath] = ini.parse(str));
+    return ini.parse(str);
   }
   return {};
 };
@@ -97,7 +89,7 @@ parse.resolve = function resolve(options) {
   }
   var opts = extend({cwd: process.cwd()}, options);
   var fp = opts.path || configPath(opts.type);
-  return path.resolve(opts.cwd, fp);
+  return fp ? path.resolve(opts.cwd, fp) : null;
 };
 
 /**
