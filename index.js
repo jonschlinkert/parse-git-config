@@ -7,13 +7,14 @@
 
 'use strict';
 
-var fs = require('fs');
-var path = require('path');
-var expand = require('expand-tilde');
-var exists = require('fs-exists-sync');
-var extend = require('extend-shallow');
-var configPath = require('git-config-path');
-var ini = require('ini');
+const fs = require('fs');
+const path = require('path');
+const util = require('util');
+const ini = require('ini');
+const configPath = require('git-config-path');
+const expand = require('expand-tilde');
+const read = util.promisify(fs.readFile);
+const stat = util.promisify(fs.stat);
 
 /**
  * Asynchronously parse a `.git/config` file. If only the callback is passed,
@@ -38,42 +39,20 @@ function parse(options, cb) {
   }
 
   if (typeof cb !== 'function') {
-    throw new TypeError('expected callback to be a function');
+    return parse.promise(options);
   }
 
-  var filepath = parse.resolveConfigPath(options);
-  if (filepath === null) {
-    cb();
-    return;
-  }
-
-  fs.stat(filepath, function(err, stat) {
-    if (err) {
-      cb(err);
-      return;
-    }
-
-    fs.readFile(filepath, 'utf8', function(err, str) {
-      if (err) {
-        cb(err);
-        return;
-      }
-
-      if (options && options.include === true) {
-        str = injectInclude(str, path.resolve(path.dirname(filepath)));
-      }
-
-      cb(null, ini.parse(str));
-    });
-  });
+  return parse.promise(options)
+    .then(config => cb(null, config))
+    .catch(cb);
 }
 
 /**
- * Synchronously parse a `.git/config` file. If no arguments are passed,
- * the `.git/config` file relative to `process.cwd()` is used.
+ * Parse the given
  *
  * ```js
- * var config = parse.sync();
+ * parse.promise({ path: '/path/to/.gitconfig' })
+ *   .then(config => console.log(config));
  * ```
  *
  * @name .sync
@@ -82,18 +61,53 @@ function parse(options, cb) {
  * @api public
  */
 
-parse.sync = function parseSync(options) {
-  var filepath = parse.resolveConfigPath(options);
-  if (filepath && exists(filepath)) {
-    var input = fs.readFileSync(filepath, 'utf8');
+parse.promise = function(options) {
+  const opts = Object.assign({}, options);
+  const filepath = parse.resolveConfigPath(opts);
 
-    if (options && options.include === true) {
-      var cwd = path.resolve(path.dirname(filepath));
-      var str = injectInclude(input, cwd);
-      return ini.parse(str);
+  if (!filepath) {
+    return Promise.resolve(null);
+  }
+
+  return stat(filepath)
+    .then(() => {
+      return read(filepath, 'utf8');
+    })
+    .then(str => {
+      if (opts.include === true) {
+        str = injectInclude(str, path.resolve(path.dirname(filepath)));
+      }
+      return parseIni(str, opts);
+    });
+};
+
+/**
+ * Synchronously parse a `.git/config` file. If no arguments are passed,
+ * the `.git/config` file relative to `process.cwd()` is used.
+ *
+ * ```js
+ * const config = parse.sync();
+ * ```
+ *
+ * @name .sync
+ * @param {Object|String} `options` Options with `cwd` or `path`, or the cwd to use.
+ * @return {Object}
+ * @api public
+ */
+
+parse.sync = function(options) {
+  const opts = Object.assign({}, options);
+  const filepath = parse.resolveConfigPath(opts);
+  if (filepath && fs.existsSync(filepath)) {
+    const input = fs.readFileSync(filepath, 'utf8');
+
+    if (opts.include === true) {
+      const cwd = path.resolve(path.dirname(filepath));
+      const str = injectInclude(input, cwd);
+      return parseIni(str, opts);
     }
 
-    return ini.parse(input);
+    return parseIni(input, opts);
   }
   return {};
 };
@@ -106,8 +120,8 @@ parse.resolveConfigPath = function(options) {
   if (typeof options === 'string') {
     options = { type: options };
   }
-  var opts = extend({cwd: process.cwd()}, options);
-  var fp = opts.path ? expand(opts.path) : configPath(opts.type);
+  const opts = Object.assign({cwd: process.cwd()}, options);
+  const fp = opts.path ? expand(opts.path) : configPath(opts.type);
   return fp ? path.resolve(opts.cwd, fp) : null;
 };
 
@@ -121,59 +135,57 @@ parse.resolve = function(options) {
 
 /**
  * Returns an object with only the properties that had ini-style keys
- * converted to objects (example below).
+ * converted to objects.
  *
  * ```js
- * var config = parse.sync();
- * var obj = parse.keys(config);
+ * const config = parse.sync({ path: '/path/to/.gitconfig' });
+ * const obj = parse.expandKeys(config);
  * ```
- * @name .keys
  * @param {Object} `config` The parsed git config object.
  * @return {Object}
  * @api public
  */
 
-parse.keys = function parseKeys(config) {
-  var res = {};
-  for (var key in config) {
-    var m = /(\S+) "(.*)"/.exec(key);
+parse.expandKeys = function(config) {
+  for (const key of Object.keys(config)) {
+    const m = /(\S+) "(.*)"/.exec(key);
     if (!m) continue;
-    var prop = m[1];
-    res[prop] = res[prop] || {};
-    res[prop][m[2]] = config[key];
+    const prop = m[1];
+    config[prop] = config[prop] || {};
+    config[prop][m[2]] = config[key];
+    delete config[key];
   }
-  return res;
+  return config;
 };
 
+function parseIni(str, options) {
+  const opts = Object.assign({}, options);
+  const config = ini.parse(str);
+  if (opts.expandKeys === true) {
+    return parse.expandKeys(config);
+  }
+  return config;
+}
+
 function injectInclude(input, cwd) {
-  var pathRegex = /^\s*path\s*=\s*/;
-  var lines = input.split('\n');
-  var len = lines.length;
-  var filepath = '';
-  var res = [];
+  const lines = input.split('\n').filter(function(line) {
+    return line.trim() !== '';
+  });
 
-  for (var i = 0; i < len; i++) {
-    var line = lines[i];
-    var n = i;
+  const len = lines.length;
+  const res = [];
 
+  for (let i = 0; i < len; i++) {
+    const line = lines[i];
     if (line.indexOf('[include]') === 0) {
-      while (n < len && !pathRegex.test(filepath)) {
-        filepath = lines[++n];
-      }
-
-      if (!filepath) {
-        return input;
-      }
-
-      filepath = filepath.replace(pathRegex, '');
-      var fp = path.resolve(cwd, expand(filepath));
+      const filepath = lines[i + 1].replace(/^\s*path\s*=\s*/, '');
+      const fp = path.resolve(cwd, expand(filepath));
       res.push(fs.readFileSync(fp));
 
     } else {
       res.push(line);
     }
   }
-
   return res.join('\n');
 }
 
