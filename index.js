@@ -1,8 +1,8 @@
 /*!
  * parse-git-config <https://github.com/jonschlinkert/parse-git-config>
  *
- * Copyright (c) 2015 Jon Schlinkert.
- * Licensed under the MIT license.
+ * Copyright (c) 2015-2018, Jon Schlinkert.
+ * Released under the MIT License.
  */
 
 'use strict';

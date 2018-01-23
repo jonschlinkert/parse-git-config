@@ -5,9 +5,9 @@
   "homepage": "https://github.com/jonschlinkert/parse-git-config",
   "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
   "contributors": [
-    "Jason Denizac <jason@denizac.org> (https://jden.us)",
-    "Jon Schlinkert <jon.schlinkert@sellside.com> (http://twitter.com/jonschlinkert)",
-    "Sam Holmes <sam@samholmes.net> (https://samholmes.net)"
+    "Jon Schlinkert (http://twitter.com/jonschlinkert)",
+    "Sam Holmes (https://samholmes.net)",
+    "(https://github.com/js-n)"
   ],
   "repository": "jonschlinkert/parse-git-config",
   "bugs": {
