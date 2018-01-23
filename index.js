@@ -9,6 +9,7 @@
 
 var fs = require('fs');
 var path = require('path');
+var expand = require('expand-tilde');
 var exists = require('fs-exists-sync');
 var extend = require('extend-shallow');
 var configPath = require('git-config-path');
@@ -33,23 +34,36 @@ var ini = require('ini');
 function parse(options, cb) {
   if (typeof options === 'function') {
     cb = options;
-    options = {};
+    options = null;
   }
 
   if (typeof cb !== 'function') {
-    throw new TypeError('parse-git-config async expects a callback function.');
+    throw new TypeError('expected callback to be a function');
   }
 
-  options = options || {};
-  var filepath = parse.resolve(options);
+  var filepath = parse.resolveConfigPath(options);
+  if (filepath === null) {
+    cb();
+    return;
+  }
 
   fs.stat(filepath, function(err, stat) {
-    if (err) return cb(err);
+    if (err) {
+      cb(err);
+      return;
+    }
 
     fs.readFile(filepath, 'utf8', function(err, str) {
-      if (err) return cb(err);
-      var parsed = ini.parse(str);
-      cb(null, parsed);
+      if (err) {
+        cb(err);
+        return;
+      }
+
+      if (options && options.include === true) {
+        str = injectInclude(str, path.resolve(path.dirname(filepath)));
+      }
+
+      cb(null, ini.parse(str));
     });
   });
 }
@@ -69,12 +83,17 @@ function parse(options, cb) {
  */
 
 parse.sync = function parseSync(options) {
-  options = options || {};
-  var filepath = parse.resolve(options);
-
+  var filepath = parse.resolveConfigPath(options);
   if (filepath && exists(filepath)) {
-    var str = fs.readFileSync(filepath, 'utf8');
-    return ini.parse(str);
+    var input = fs.readFileSync(filepath, 'utf8');
+
+    if (options && options.include === true) {
+      var cwd = path.resolve(path.dirname(filepath));
+      var str = injectInclude(input, cwd);
+      return ini.parse(str);
+    }
+
+    return ini.parse(input);
   }
   return {};
 };
@@ -83,13 +102,21 @@ parse.sync = function parseSync(options) {
  * Resolve the git config path
  */
 
-parse.resolve = function resolve(options) {
+parse.resolveConfigPath = function(options) {
   if (typeof options === 'string') {
     options = { type: options };
   }
   var opts = extend({cwd: process.cwd()}, options);
-  var fp = opts.path || configPath(opts.type);
+  var fp = opts.path ? expand(opts.path) : configPath(opts.type);
   return fp ? path.resolve(opts.cwd, fp) : null;
+};
+
+/**
+ * Deprecated: use `.resolveConfigPath` instead
+ */
+
+parse.resolve = function(options) {
+  return parse.resolveConfigPath(options);
 };
 
 /**
@@ -117,6 +144,38 @@ parse.keys = function parseKeys(config) {
   }
   return res;
 };
+
+function injectInclude(input, cwd) {
+  var pathRegex = /^\s*path\s*=\s*/;
+  var lines = input.split('\n');
+  var len = lines.length;
+  var filepath = '';
+  var res = [];
+
+  for (var i = 0; i < len; i++) {
+    var line = lines[i];
+    var n = i;
+
+    if (line.indexOf('[include]') === 0) {
+      while (n < len && !pathRegex.test(filepath)) {
+        filepath = lines[++n];
+      }
+
+      if (!filepath) {
+        return input;
+      }
+
+      filepath = filepath.replace(pathRegex, '');
+      var fp = path.resolve(cwd, expand(filepath));
+      res.push(fs.readFileSync(fp));
+
+    } else {
+      res.push(line);
+    }
+  }
+
+  return res.join('\n');
+}
 
 /**
  * Expose `parse`
