@@ -1,0 +1,11 @@
+[user]
+  email = email
+  name = name
+  signingkey = https://help.github.com/articles/generating-a-new-gpg-key/
+[github]
+  user = name
+  token = https://github.com/settings/tokens
+[commit]
+  gpgsign = true
+[tag]
+  gpgsign = true

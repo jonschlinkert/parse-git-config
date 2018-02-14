@@ -1,7 +1,8 @@
 'use strict';
 
-var parse = require('./');
-var config = {
+const parse = require('./');
+const gitconfig = {
+  email: 'email',
   'remote "origin"': {
     url: 'https://github.com/jonschlinkert/normalize-pkg.git',
     fetch: '+refs/heads/*:refs/remotes/origin/*'
@@ -14,4 +15,5 @@ var config = {
   }
 };
 
-console.log(parse.keys(config));
+const config = parse.expandKeys(gitconfig);
+console.log(config);
