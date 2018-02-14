@@ -27,24 +27,24 @@ const stat = util.promisify(fs.stat);
  * });
  * ```
  * @param {Object|String|Function} `options` Options with `cwd` or `path`, the cwd to use, or the callback function.
- * @param {Function} `cb` callback function if the first argument is options or cwd.
+ * @param {Function} `callback` callback function if the first argument is options or cwd.
  * @return {Object}
  * @api public
  */
 
-function parse(options, cb) {
+function parse(options, callback) {
   if (typeof options === 'function') {
-    cb = options;
+    callback = options;
     options = null;
   }
 
-  if (typeof cb !== 'function') {
+  if (typeof callback !== 'function') {
     return parse.promise(options);
   }
 
   return parse.promise(options)
-    .then(config => cb(null, config))
-    .catch(cb);
+    .then(config => callback(null, config))
+    .catch(callback);
 }
 
 /**
