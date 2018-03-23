@@ -1,0 +1,11 @@
+[branch "2.0"]
+  remote = origin
+  merge = refs/heads/devel
+
+[branch "devel"]
+  remote = origin
+  merge = refs/heads/devel
+
+[branch "master"]
+  remote = origin
+  merge = refs/heads/devel
