@@ -45,6 +45,15 @@ describe('parse-git-config', function() {
         .catch(cb);
     });
 
+    it('should not expand dots in keys in config', function(cb) {
+      parse({ path: fixture('_gitconfig-branch'), expandKeys: true })
+        .then(config => {
+          assert.deepEqual(Object.keys(config.branch), ['devel', 'master', '2.0'])
+          cb();
+        })
+        .catch(cb);
+    });
+
     it('should include other config sources', function(cb) {
       parse({ path: fixture('_gitconfig'), include: true }, function(err, config) {
         assert(!err);

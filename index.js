@@ -160,6 +160,11 @@ parse.expandKeys = function(config) {
 
 function parseIni(str, options) {
   const opts = Object.assign({}, options);
+
+  str = str.replace(/\[(\S+) "(.*)"\]/g, function(m, $1, $2) {
+    return $1 && $2 ? `[${$1} "${$2.split('.').join('\\.')}"]` : m;
+  });
+
   const config = ini.parse(str);
   if (opts.expandKeys === true) {
     return parse.expandKeys(config);
