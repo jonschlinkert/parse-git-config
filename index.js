@@ -13,8 +13,25 @@ const util = require('util');
 const ini = require('ini');
 const configPath = require('git-config-path');
 const expand = require('expand-tilde');
-const read = util.promisify(fs.readFile);
-const stat = util.promisify(fs.stat);
+
+/**
+ * Wraps an arbitrary function in a Promise.
+ *
+ * @param {Function} `func` The function to be wrapped.
+ */
+
+function promisify(func) {
+  return function (...args) {
+    return new Promise((resolve, reject) => {
+      func(...args, (err, res) => {
+        err ? reject(err) : resolve(res);
+      });
+    });
+  }
+}
+
+const read = promisify(fs.readFile);
+const stat = promisify(fs.stat);
 
 /**
  * Asynchronously parse a `.git/config` file. If only the callback is passed,
