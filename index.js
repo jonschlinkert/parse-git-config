@@ -9,26 +9,9 @@
 
 const fs = require('fs');
 const path = require('path');
-const util = require('util');
 const ini = require('ini');
 const configPath = require('git-config-path');
 const expand = require('expand-tilde');
-
-/**
- * Wraps an arbitrary function in a Promise.
- *
- * @param {Function} `func` The function to be wrapped.
- */
-
-function promisify(func) {
-  return function (...args) {
-    return new Promise((resolve, reject) => {
-      func(...args, (err, res) => {
-        err ? reject(err) : resolve(res);
-      });
-    });
-  }
-}
 
 const read = promisify(fs.readFile);
 const stat = promisify(fs.stat);
@@ -209,6 +192,22 @@ function injectInclude(input, cwd) {
     }
   }
   return res.join('\n');
+}
+
+/**
+ * Wraps an arbitrary function in a Promise.
+ *
+ * @param {Function} `fn` The function to be wrapped.
+ */
+
+function promisify(fn) {
+  return (...args) => {
+    return new Promise((resolve, reject) => {
+      fn(...args, (err, res) => {
+        err ? reject(err) : resolve(res);
+      });
+    });
+  };
 }
 
 /**

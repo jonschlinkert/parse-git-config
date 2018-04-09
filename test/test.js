@@ -2,7 +2,6 @@
 
 require('mocha');
 const isTravis = process.env.TRAVIS || process.env.CLI;
-const fs = require('fs');
 const os = require('os');
 const assert = require('assert');
 const path = require('path');
@@ -11,10 +10,6 @@ const parse = require('..');
 
 const cwd = (...args) => path.resolve(__dirname, ...args);
 const fixture = name => cwd('fixtures', name);
-
-function read(filepath) {
-  return fs.readFileSync(path.join(__dirname, filepath), 'utf8');
-}
 
 describe('parse-git-config', function() {
   describe('async', function() {
@@ -48,7 +43,7 @@ describe('parse-git-config', function() {
     it('should not expand dots in keys in config', function(cb) {
       parse({ path: fixture('_gitconfig-branch'), expandKeys: true })
         .then(config => {
-          assert.deepEqual(Object.keys(config.branch), ['devel', 'master', '2.0'])
+          assert.deepEqual(Object.keys(config.branch), ['devel', 'master', '2.0']);
           cb();
         })
         .catch(cb);
