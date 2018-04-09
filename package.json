@@ -5,9 +5,9 @@
   "homepage": "https://github.com/jonschlinkert/parse-git-config",
   "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
   "contributors": [
+    "j. suárez (http://suarez.systems)",
     "Jon Schlinkert (http://twitter.com/jonschlinkert)",
-    "Sam Holmes (https://samholmes.net)",
-    "(https://github.com/js-n)"
+    "Sam Holmes (https://samholmes.net)"
   ],
   "repository": "jonschlinkert/parse-git-config",
   "bugs": {
@@ -19,7 +19,7 @@
   ],
   "main": "index.js",
   "engines": {
-    "node": ">=8"
+    "node": ">=6"
   },
   "scripts": {
     "test": "mocha"
