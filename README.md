@@ -116,16 +116,12 @@ Returns an object with only the properties that had ini-style keys converted to 
 * `config` **{Object}**: The parsed git config object.
 * `returns` **{Object}**
 
-**Example**
+**Usage Example**
 
 ```js
 const config = parse.sync({ path: '/path/to/.gitconfig' });
 const obj = parse.expandKeys(config);
 ```
-
-### .keys examples
-
-Converts ini-style keys into objects:
 
 **Example 1**
 
@@ -136,7 +132,7 @@ const config = {
   'foo "baz"': { doStuff: true } 
 };
 
-console.log(parse.keys(config));
+console.log(parse.expandKeys(config));
 ```
 
 Results in:
@@ -170,7 +166,7 @@ const config = {
   }
 };
 
-console.log(parse.keys(config));
+console.log(parse.expandKeys(config));
 ```
 
 Results in:
