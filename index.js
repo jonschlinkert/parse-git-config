@@ -1,7 +1,7 @@
 /*!
  * parse-git-config <https://github.com/jonschlinkert/parse-git-config>
  *
- * Copyright (c) 2015-2018, Jon Schlinkert.
+ * Copyright (c) 2015-present, Jon Schlinkert.
  * Released under the MIT License.
  */
 
@@ -9,12 +9,10 @@
 
 const fs = require('fs');
 const path = require('path');
+const util = require('util');
 const ini = require('ini');
 const configPath = require('git-config-path');
 const expand = require('expand-tilde');
-
-const read = promisify(fs.readFile);
-const stat = promisify(fs.stat);
 
 /**
  * Asynchronously parse a `.git/config` file. If only the callback is passed,
@@ -61,23 +59,22 @@ function parse(options, callback) {
  * @api public
  */
 
-parse.promise = function(options) {
-  const opts = Object.assign({}, options);
-  const filepath = parse.resolveConfigPath(opts);
+parse.promise = options => {
+  const filepath = parse.resolveConfigPath(options);
+  const read = util.promisify(fs.readFile);
+  const stat = util.promisify(fs.stat);
 
   if (!filepath) {
     return Promise.resolve(null);
   }
 
   return stat(filepath)
-    .then(() => {
-      return read(filepath, 'utf8');
-    })
+    .then(() => read(filepath, 'utf8'))
     .then(str => {
-      if (opts.include === true) {
+      if (options && options.include === true) {
         str = injectInclude(str, path.resolve(path.dirname(filepath)));
       }
-      return parseIni(str, opts);
+      return parseIni(str, options);
     });
 };
 
@@ -95,7 +92,7 @@ parse.promise = function(options) {
  * @api public
  */
 
-parse.sync = function(options) {
+parse.sync = options => {
   const opts = Object.assign({}, options);
   const filepath = parse.resolveConfigPath(opts);
   if (filepath && fs.existsSync(filepath)) {
@@ -116,7 +113,7 @@ parse.sync = function(options) {
  * Resolve the git config path
  */
 
-parse.resolveConfigPath = function(options) {
+parse.resolveConfigPath = options => {
   if (typeof options === 'string') {
     options = { type: options };
   }
@@ -129,9 +126,7 @@ parse.resolveConfigPath = function(options) {
  * Deprecated: use `.resolveConfigPath` instead
  */
 
-parse.resolve = function(options) {
-  return parse.resolveConfigPath(options);
-};
+parse.resolve = options => parse.resolveConfigPath(options);
 
 /**
  * Returns an object with only the properties that had ini-style keys
@@ -146,7 +141,7 @@ parse.resolve = function(options) {
  * @api public
  */
 
-parse.expandKeys = function(config) {
+parse.expandKeys = config => {
   for (const key of Object.keys(config)) {
     const m = /(\S+) "(.*)"/.exec(key);
     if (!m) continue;
@@ -173,10 +168,7 @@ function parseIni(str, options) {
 }
 
 function injectInclude(input, cwd) {
-  const lines = input.split('\n').filter(function(line) {
-    return line.trim() !== '';
-  });
-
+  const lines = input.split('\n').filter(line => line.trim() !== '');
   const len = lines.length;
   const res = [];
 
@@ -192,22 +184,6 @@ function injectInclude(input, cwd) {
     }
   }
   return res.join('\n');
-}
-
-/**
- * Wraps an arbitrary function in a Promise.
- *
- * @param {Function} `fn` The function to be wrapped.
- */
-
-function promisify(fn) {
-  return (...args) => {
-    return new Promise((resolve, reject) => {
-      fn(...args, (err, res) => {
-        err ? reject(err) : resolve(res);
-      });
-    });
-  };
 }
 
 /**
