@@ -5,7 +5,6 @@ const isTravis = process.env.TRAVIS || process.env.CLI;
 const os = require('os');
 const assert = require('assert');
 const path = require('path');
-const homedir = require('homedir-polyfill');
 const parse = require('..');
 
 const cwd = (...args) => path.resolve(__dirname, ...args);
@@ -111,7 +110,7 @@ describe('parse-git-config', function() {
     });
 
     it('should allow override path', function() {
-      const fp = path.resolve(homedir(), '.gitconfig');
+      const fp = path.resolve(os.homedir(), '.gitconfig');
       assert.equal(parse.resolve({ path: fp }), fp);
     });
 
@@ -127,7 +126,7 @@ describe('parse-git-config', function() {
 
     it('should resolve relative path to the global git config when `global` is passed', function() {
       if (isTravis && os.platform() === 'darwin') return this.skip();
-      assert.equal(parse.resolve('global'), path.resolve(homedir(), '.gitconfig'));
+      assert.equal(parse.resolve('global'), path.resolve(os.homedir(), '.gitconfig'));
     });
 
     it('should allow override of cwd', function() {
